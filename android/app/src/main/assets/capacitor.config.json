@@ -1,0 +1,6 @@
+{
+  "appId": "com.aolabs.giflist",
+  "appName": "giflist",
+  "bundledWebRuntime": false,
+  "webDir": "www"
+}
