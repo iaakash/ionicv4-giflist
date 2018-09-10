@@ -25,6 +25,7 @@ export class HomePage implements OnInit {
   public posts: any[] = [];
   public loading: boolean = true;
   public postStore = [];
+  public favoritePostStack = [];
   private page: number = 1;
   private after: string;
   private moreCount: number = 0;
@@ -32,7 +33,8 @@ export class HomePage implements OnInit {
   constructor(
     public RedditService: RedditService,
     private fb: FormBuilder,
-    private dataService: DataService
+    private dataService: DataService,
+    private modalCtrl: ModalController
   ) {
     this.subredditForm = this.fb.group({
       subredditControl: [""]
@@ -76,10 +78,25 @@ export class HomePage implements OnInit {
     });
   }
 
+  public openSettings() {
+    this.modalCtrl.create({
+      component: SettingsPage
+    }).then(modal => {
+      modal.onDidDismiss().then(_ => {
+        this.refreshPostsBasedOnSettings();
+      });
+      modal.present();
+    })
+  }
+
+  public addToFavorites(event, post) {
+    event.stopPropagation();
+    this.favoritePostStack.push(post);
+  }
+
   /** Helpers */
   private loadPosts() {
     this.RedditService.load(this.settings).subscribe(data => {
-      
       this.loading = false;
       this.posts = this.loadPostsToDisplay(
         this.filterAndProcessGifs(data.data.children)
@@ -105,7 +122,7 @@ export class HomePage implements OnInit {
   }
 
   private refuelPostsStoreFromReddit(after) {
-    this.RedditService.load(after).subscribe(data => {
+    this.RedditService.load(this.settings, after).subscribe(data => {
       this.loading = false;
       this.postStore = [
         ...this.postStore,
@@ -126,12 +143,27 @@ export class HomePage implements OnInit {
       });
   }
 
-  private changeSubreddit(subreddit) {
-    this.settings.subreddit = subreddit;
-    this.after = null;
-    this.postStore = [];
+  private refreshPostsBasedOnSettings() {
+    this.dataService.getData().then(settings => {
+      this.settings = settings;
+      this.after = null;
+      this.postStore = [];
 
-    this.loadPosts();
+      this.loadPosts();
+    })
+    
+  }
+
+  private changeSubreddit(subreddit) {
+    if(subreddit == 'favorites') {
+      this.posts = this.favoritePostStack;
+    }else {
+      this.settings.subreddit = subreddit;
+      this.after = null;
+      this.postStore = [];
+      this.loadPosts();
+    }
+    
   }
 
   private filterAndProcessGifs(data: Array<Object>): Array<Object> {
