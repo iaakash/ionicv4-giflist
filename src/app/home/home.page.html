@@ -25,11 +25,11 @@
         <video loop [src]="post.url" [poster]="post.snapshot">
         </video>
       </ion-item>
-      <ion-list-header  style="text-align: left;" (click)="showComments($event, post)">
+      <ion-list-header style="text-align: left;" (click)="showComments($event, post)">
         <ion-label> <small>{{ i+1 }}</small>{{post.data.title}}</ion-label>
         <ion-buttons>
             <ion-button (click)="addToFavorites($event, post)"> 
-                <ion-icon name="heart-empty" slot="icon-only"></ion-icon>
+                <ion-icon [name]="isFavourite(post)" slot="icon-only"></ion-icon> 
             </ion-button>
         </ion-buttons>
       </ion-list-header>

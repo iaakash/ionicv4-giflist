@@ -92,8 +92,23 @@ export class HomePage implements OnInit {
   public addToFavorites(event, post) {
     event.stopPropagation();
     this.favoritePostStack.push(post);
+    console.log('this.favoritePostStack:::', this.favoritePostStack);
   }
 
+  public isFavourite(post) {
+    
+    if(this.favoritePostStack.length > 0) {
+      this.favoritePostStack;
+
+      let isIndex = this.favoritePostStack.findIndex(item => post.data.id == item.data.id);
+      console.log('isIndex:::', isIndex);
+      return isIndex > -1 ? 'heart': 'heart-empty';
+    }else {
+      return 'heart-empty';
+    }
+   
+    
+  }
   /** Helpers */
   private loadPosts() {
     this.RedditService.load(this.settings).subscribe(data => {
